@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#102723">
+  <meta name="referrer" content="no-referrer">
+  <title>Vigilancia móvil</title>
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./style.css">
+  <script src="./app.js" defer></script>
+</head>
+<body>
+  <main>
+    <header><span class="brand">VIGILANCIA MÓVIL</span><span class="interval">Cada 1 s</span></header>
+    <h1>Activa.<br>Deja la pantalla abierta.</h1>
+    <p class="intro">Cuando se detecte un cambio, se abrirá Google automáticamente.</p>
+    <form id="form">
+      <label for="code">Código de usuario</label>
+      <input id="code" name="code" type="text" minlength="3" maxlength="3" pattern="[A-Za-z]{3}" placeholder="ABC" autocomplete="off" autocapitalize="characters" spellcheck="false" required aria-describedby="code-help">
+      <p id="code-help" class="hint">Introduce 3 letras, sin números ni espacios.</p>
+      <button id="start" type="submit">Activar vigilancia</button>
+      <button id="stop" class="secondary" type="button" hidden>Detener vigilancia</button>
+    </form>
+    <section class="status" data-state="idle" aria-label="Estado de vigilancia">
+      <div class="status-title"><span class="dot" aria-hidden="true"></span><h2 id="status" role="status" aria-live="polite">Sin activar</h2></div>
+      <p id="detail">La vigilancia empezará al pulsar Activar.</p>
+      <div class="screen"><span aria-hidden="true">▣</span><span id="wake" role="status">Pantalla: pendiente de activación</span></div>
+      <button id="retry-wake" class="secondary small" type="button" hidden>Mantener pantalla encendida</button>
+    </section>
+    <p class="footnote">Mantén esta página visible. Si cambias de aplicación o bloqueas el móvil, la vigilancia puede pausarse.</p>
+  </main>
+</body>
+</html>

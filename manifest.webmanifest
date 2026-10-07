@@ -1,0 +1,12 @@
+{
+  "name": "Vigilancia móvil",
+  "short_name": "Vigilancia",
+  "lang": "es",
+  "id": "./",
+  "start_url": "./",
+  "scope": "./",
+  "display": "browser",
+  "background_color": "#eef3f1",
+  "theme_color": "#102723",
+  "icons": [{"src":"./icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any"}]
+}
