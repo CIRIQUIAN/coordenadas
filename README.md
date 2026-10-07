@@ -17,7 +17,7 @@ Introduce exactamente 3 letras A–Z y pulsa **Activar vigilancia**. Se conserva
 
 - La primera respuesta JSON válida con un campo `data` se memoriza sin redirigir.
 - A partir de ahí se compara únicamente `data`. Otros campos se ignoran. Objetos con claves en distinto orden se consideran iguales; los tipos y el orden de los arrays sí cuentan.
-- Un cambio ejecuta `location.replace('https://www.google.com/')`: reemplaza esta entrada del historial, sin añadir otra para Google. Esto no elimina otras visitas anteriores a la web del historial.
+- Un cambio ejecuta `location.replace('https://www.google.com/search?q=CONTENIDO')`: busca el nuevo contenido de `data` en Google, codificado como parámetro `q`, y reemplaza esta entrada del historial, sin añadir otra para Google. Esto no elimina otras visitas anteriores a la web del historial.
 - El valor del API nunca se muestra, se guarda en almacenamiento local ni se escribe en la consola. Solo permanece en memoria mientras dura la activación. Como en cualquier web, las herramientas de red del navegador pueden inspeccionar las respuestas.
 - **Detener vigilancia** cancela la consulta pendiente y libera la pantalla. Cada nueva activación toma una referencia nueva.
 - Los errores de red, HTTP o JSON no cuentan como cambios y no borran la referencia. Se muestra un aviso y se reintenta. `null`, cadena vacía, `0` y `false` son valores válidos si existe el campo `data`.

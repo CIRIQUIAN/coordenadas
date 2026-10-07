@@ -97,9 +97,12 @@
         owner.baseline = current;
         owner.hasBaseline = true;
       } else if (current !== owner.baseline) {
+        const query = typeof body.data === 'string' ? body.data : canonical(body.data);
+        const destination = new URL('https://www.google.com/search');
+        destination.searchParams.set('q', query);
         deactivate();
         show('active', 'Cambio detectado', 'Abriendo Google…');
-        window.location.replace('https://www.google.com/');
+        window.location.replace(destination.href);
         return;
       }
       show('active', 'Vigilancia activa', 'Conectada. Esperando un cambio.');
