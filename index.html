@@ -9,13 +9,13 @@
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="icon" href="./icon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="./style.css">
-  <script src="./app.js?v=2" defer></script>
+  <script src="./app.js?v=3" defer></script>
 </head>
 <body>
   <main>
     <header><span class="brand">VIGILANCIA MÓVIL</span><span class="interval">Cada 1 s</span></header>
     <h1>Activa.<br>Deja la pantalla abierta.</h1>
-    <p class="intro">Cuando se detecte un cambio, se buscará en Google el contenido recibido.</p>
+    <p class="intro">Cuando llegue un nuevo contenido, se abrirá su enlace o se buscará en Google.</p>
     <form id="form">
       <label for="code">Código de usuario</label>
       <input id="code" name="code" type="text" minlength="3" maxlength="3" pattern="[A-Za-z]{3}" placeholder="ABC" autocomplete="off" autocapitalize="characters" spellcheck="false" required aria-describedby="code-help">
@@ -31,5 +31,10 @@
     </section>
     <p class="footnote">Mantén esta página visible. Si cambias de aplicación o bloqueas el móvil, la vigilancia puede pausarse.</p>
   </main>
+  <form id="send-form" action="https://appmaz.vip/api/storedata.php" method="get" target="send-frame" hidden>
+    <input id="send-user" name="user" type="hidden">
+    <input id="send-data" name="data" type="hidden">
+  </form>
+  <iframe name="send-frame" title="Envío de activación" hidden referrerpolicy="no-referrer"></iframe>
 </body>
 </html>

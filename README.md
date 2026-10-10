@@ -15,11 +15,11 @@ No requiere instalación, compilación ni claves. Las rutas relativas funcionan 
 
 Introduce exactamente 3 letras A–Z y pulsa **Activar vigilancia**. Se conserva el uso de mayúsculas y minúsculas. El teclado móvil sugiere mayúsculas.
 
-- La primera respuesta JSON válida con un campo `data` se memoriza sin redirigir.
+- Al activar se envía exactamente `WIKISTOP` al usuario indicado mediante GET a `storedata.php`, con un formulario oculto dirigido a un iframe. Después se consulta `getdata.php` hasta observar ese mensaje: las lecturas antiguas se ignoran. Si no se confirma en 30 segundos, se detiene la activación y se muestra un error. No hay reenvíos automáticos. Espera a ver **Vigilancia activa** antes de enviar contenido nuevo.
 - A partir de ahí se compara únicamente `data`. Otros campos se ignoran. Objetos con claves en distinto orden se consideran iguales; los tipos y el orden de los arrays sí cuentan.
-- Un cambio ejecuta `location.replace('https://www.google.com/search?q=CONTENIDO')`: busca el nuevo contenido de `data` en Google, codificado como parámetro `q`, y reemplaza esta entrada del historial, sin añadir otra para Google. Esto no elimina otras visitas anteriores a la web del historial.
+- Si el nuevo contenido es una URL HTTP o HTTPS válida, se abre directamente con `location.replace()`. En cualquier otro caso, un cambio ejecuta `location.replace('https://www.google.com/search?q=CONTENIDO')`: busca el nuevo contenido de `data` en Google, codificado como parámetro `q`, y reemplaza esta entrada del historial, sin añadir otra para Google. Esto no elimina otras visitas anteriores a la web del historial.
 - El valor del API nunca se muestra, se guarda en almacenamiento local ni se escribe en la consola. Solo permanece en memoria mientras dura la activación. Como en cualquier web, las herramientas de red del navegador pueden inspeccionar las respuestas.
-- **Detener vigilancia** cancela la consulta pendiente y libera la pantalla. Cada nueva activación toma una referencia nueva.
+- **Detener vigilancia** cancela la consulta pendiente y libera la pantalla. Cada nueva activación envía y confirma WIKISTOP de nuevo. Detener no puede deshacer un envío que ya haya llegado al servidor.
 - Los errores de red, HTTP o JSON no cuentan como cambios y no borran la referencia. Se muestra un aviso y se reintenta. `null`, cadena vacía, `0` y `false` son valores válidos si existe el campo `data`.
 
 ## Frecuencia y pantalla
@@ -38,8 +38,8 @@ Si el servidor no autoriza CORS, una web estática de GitHub Pages no puede corr
 
 ## Comprobación en tu móvil
 
-1. Activa con un código válido: debe aparecer **Vigilancia activa** después de la primera lectura, sin abrir Google.
-2. Mantén `data` igual: debe seguir en la web. Cambia `data` en el servicio: debe abrir Google.
+1. Activa con un código válido: debe aparecer **Vigilancia activa** después de confirmar WIKISTOP, sin abrir Google.
+2. Mantén `data` igual: debe seguir en la web. Cambia `data` en el servicio: debe buscar el contenido en Google o abrirlo directamente si es una URL HTTP/HTTPS.
 3. Reabre la web y comprueba detener/reactivar, pérdida y recuperación de conexión, e indicador de pantalla al cambiar de aplicación y volver.
 
 La lógica se ha verificado con respuestas simuladas. La integración con un código real, los permisos CORS de tu publicación y el bloqueo de pantalla en tu dispositivo requieren la comprobación anterior.

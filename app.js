@@ -4,6 +4,7 @@
   const form = $('form'), code = $('code'), start = $('start'), stop = $('stop');
   const status = $('status'), detail = $('detail'), wake = $('wake'), retry = $('retry-wake');
   const panel = document.querySelector('.status');
+  const READY = 'WIKISTOP';
   let session = null, sentinel = null, wakePending = false;
 
   function show(state, title, message) {
@@ -19,6 +20,20 @@
       return '{' + Object.keys(value).sort().map(k => JSON.stringify(k) + ':' + canonical(value[k])).join(',') + '}';
     }
     return JSON.stringify(value);
+  }
+
+  function destinationFor(value) {
+    const text = typeof value === 'string' ? value : canonical(value);
+    const trimmed = text.trim();
+    if (/^https?:\/\//i.test(trimmed)) {
+      try {
+        const url = new URL(trimmed);
+        if ((url.protocol === 'http:' || url.protocol === 'https:') && url.hostname) return url.href;
+      } catch {}
+    }
+    const search = new URL('https://www.google.com/search');
+    search.searchParams.set('q', text);
+    return search.href;
   }
 
   async function acquireWake() {
@@ -60,6 +75,7 @@
     session = null;
     if (old) {
       clearInterval(old.timer);
+      clearTimeout(old.readyTimeout);
       old.controller?.abort();
       old.baseline = undefined;
     }
@@ -94,15 +110,19 @@
       if (session !== owner) return;
       const current = canonical(body.data);
       if (!owner.hasBaseline) {
+        // Ignore stale data until the initialization marker is observed.
+        if (body.data !== READY) {
+          show('pending', 'Confirmando activación', 'Esperando la confirmación del servicio…');
+          return;
+        }
+        clearTimeout(owner.readyTimeout);
         owner.baseline = current;
         owner.hasBaseline = true;
       } else if (current !== owner.baseline) {
-        const query = typeof body.data === 'string' ? body.data : canonical(body.data);
-        const destination = new URL('https://www.google.com/search');
-        destination.searchParams.set('q', query);
+        const destination = destinationFor(body.data);
         deactivate();
-        show('active', 'Cambio detectado', 'Abriendo Google…');
-        window.location.replace(destination.href);
+        show('active', 'Cambio detectado', 'Abriendo el contenido…');
+        window.location.replace(destination);
         return;
       }
       show('active', 'Vigilancia activa', 'Conectada. Esperando un cambio.');
@@ -129,13 +149,29 @@
       return;
     }
     code.setCustomValidity('');
-    const owner = { code: value, hasBaseline: false, baseline: undefined, busy: false, controller: null, timer: null };
+    const owner = { code: value, hasBaseline: false, baseline: undefined, busy: false, controller: null, timer: null, readyTimeout: null };
     session = owner;
     code.disabled = true;
     start.hidden = true;
     stop.hidden = false;
-    show('pending', 'Activando vigilancia', 'Esperando la primera lectura para empezar.');
+    show('pending', 'Confirmando activación', 'Enviando la señal de inicio al servicio…');
     void acquireWake();
+    try {
+      $('send-user').value = value;
+      $('send-data').value = READY;
+      // Same GET form/iframe transport as the sender app. A form submission
+      // is not an acknowledgement: getdata must return READY before arming.
+      $('send-form').submit();
+    } catch {
+      deactivate();
+      show('error', 'No se pudo activar', 'No se pudo enviar la señal de inicio. Vuelve a pulsar Activar.');
+      return;
+    }
+    owner.readyTimeout = setTimeout(() => {
+      if (session !== owner || owner.hasBaseline) return;
+      deactivate();
+      show('error', 'Activación no confirmada', 'El servicio no confirmó la señal de inicio. Comprueba la conexión y vuelve a activar.');
+    }, 30000);
     void poll(owner);
     // One attempt each second; never overlap slow requests.
     owner.timer = setInterval(() => void poll(owner), 1000);
